@@ -143,3 +143,26 @@ with col2:
             if 'yt_error' in st.session_state:
                 st.error(f"Download Error: {st.session_state['yt_error']}")
                 st.info("💡 YouTube often blocks cloud servers. Use 'Upload File' as a fallback.")
+
+# Persistent Status Check
+st.write("---")
+if st.session_state.get('audio_path'):
+    st.success(f"🎵 **Audio Status:** Loaded and Ready ({st.session_state['audio_path']})")
+else:
+    st.warning("🎵 **Audio Status:** Not Loaded")
+
+# --- 4. FINAL GENERATION ---
+st.divider()
+if st.button("🚀 Create & Play Video", use_container_width=True):
+    if uploaded_images and st.session_state.get('audio_path'):
+        try:
+            with st.spinner("Rendering video... This may take a minute."):
+                video_file = create_video(uploaded_images, duplicates, fps, st.session_state['audio_path'])
+                st.video(video_file)
+                
+                with open(video_file, "rb") as f:
+                    st.download_button("📥 Download Result", f, file_name="my_video.mp4")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+    else:
+        st.warning("Please ensure images are uploaded and audio is 'Loaded and Ready'.")
